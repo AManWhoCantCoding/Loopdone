@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loopdone — Quản lý công việc hiện đại</title>
+  <meta name="description" content="Loopdone - Ung dung quan ly cong viec full-stack hien dai va chuyen nghiep" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-group">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="app-title">Loopdone</h1>
+            <p class="app-subtitle">Tối ưu hiệu suất công việc mỗi ngày</p>
+          </div>
+        </div>
+        <div id="modeBadge" class="mode-badge">
+          <span class="dot"></span>
+          <span id="modeText">REST API Mode</span>
+        </div>
+      </div>
+
+      <!-- Progress Tracking Card -->
+      <div class="progress-card">
+        <div class="progress-header">
+          <span class="progress-title">Tiến độ hoàn thành</span>
+          <span id="progressStats" class="progress-stats">0/0 (0%)</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div id="progressBarFill" class="progress-bar-fill"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Task Input Form -->
+    <section class="input-section">
+      <div class="task-form">
+        <div class="input-row">
+          <input 
+            type="text" 
+            id="taskInput" 
+            class="task-input" 
+            placeholder="Nhập công việc mới cần thực hiện..." 
+            autocomplete="off" 
+          />
+        </div>
+        <div class="form-actions">
+          <div class="priority-selector">
+            <span class="priority-label">Độ ưu tiên:</span>
+            <div class="priority-options">
+              <button type="button" class="priority-btn" data-priority="high">Cao</button>
+              <button type="button" class="priority-btn active" data-priority="medium">Trung bình</button>
+              <button type="button" class="priority-btn" data-priority="low">Thấp</button>
+            </div>
+          </div>
+          <button type="button" id="addBtn" class="btn-add">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Thêm task
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Controls Bar (Filter Tabs & Search) -->
+    <section class="controls-bar">
+      <div class="filter-tabs">
+        <button class="tab-btn active" data-filter="all">Tất cả</button>
+        <button class="tab-btn" data-filter="active">Đang làm</button>
+        <button class="tab-btn" data-filter="completed">Đã xong</button>
+      </div>
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" class="search-input" placeholder="Tìm kiếm công việc..." />
+      </div>
+    </section>
+
+    <!-- Task List -->
+    <main>
+      <ul id="todoList" class="todo-list"></ul>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span id="itemsLeftCount">0 công việc đang chờ</span>
+      <button id="clearCompletedBtn" class="btn-clear">Dọn dẹp công việc đã xong</button>
+    </footer>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- JavaScript Entry Point -->
+  <script src="app-api.js"></script>
+</body>
+</html>

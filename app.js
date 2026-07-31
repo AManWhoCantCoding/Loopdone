@@ -1,0 +1,256 @@
+// Loopdone — LocalStorage Frontend Logic
+
+// Initial State from LocalStorage
+let todos = JSON.parse(localStorage.getItem("loopdone_todos")) || [
+  { id: 1, text: "Hoàn thiện thiết kế giao diện Loopdone", priority: "high", completed: true, createdAt: new Date().toISOString() },
+  { id: 2, text: "Trải nghiệm chế độ LocalStorage offline", priority: "medium", completed: false, createdAt: new Date().toISOString() },
+  { id: 3, text: "Viết tài liệu README chi tiết và hướng dẫn sử dụng", priority: "low", completed: false, createdAt: new Date().toISOString() }
+];
+
+let currentFilter = "all";
+let currentSearch = "";
+let selectedPriority = "medium";
+let nextId = todos.length > 0 ? Math.max(...todos.map(t => t.id || 0)) + 1 : 1;
+
+// Priority Labels & Colors Mapping
+const PRIORITY_MAP = {
+  high: { label: "Cao", class: "high" },
+  medium: { label: "Trung bình", class: "medium" },
+  low: { label: "Thấp", class: "low" }
+};
+
+// Save to LocalStorage
+function saveTodos() {
+  localStorage.setItem("loopdone_todos", JSON.stringify(todos));
+}
+
+// --- Toast Notification ---
+function showToast(message, icon = "✨") {
+  const container = document.getElementById("toastContainer");
+  if (!container) return;
+  
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.animation = "toastOut 0.3s ease-in forwards";
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
+}
+
+// --- Format Relative Time ---
+function formatTime(isoString) {
+  if (!isoString) return "";
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return "";
+  
+  const now = new Date();
+  const diffSec = Math.floor((now - date) / 1000);
+  
+  if (diffSec < 60) return "Vừa xong";
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)} phút trước`;
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} giờ trước`;
+  return date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
+}
+
+// --- Render Function ---
+function renderTodos() {
+  const list = document.getElementById("todoList");
+  if (!list) return;
+  list.innerHTML = "";
+
+  // Update mode badge for LocalStorage
+  const modeText = document.getElementById("modeText");
+  if (modeText) modeText.textContent = "LocalStorage Mode";
+
+  // 1. Calculate Statistics
+  const totalCount = todos.length;
+  const completedCount = todos.filter(t => t.completed).length;
+  const activeCount = totalCount - completedCount;
+  const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  const progressStats = document.getElementById("progressStats");
+  const progressBarFill = document.getElementById("progressBarFill");
+  const itemsLeftCount = document.getElementById("itemsLeftCount");
+
+  if (progressStats) progressStats.textContent = `${completedCount}/${totalCount} (${percent}%)`;
+  if (progressBarFill) progressBarFill.style.width = `${percent}%`;
+  if (itemsLeftCount) itemsLeftCount.textContent = `${activeCount} công việc đang chờ`;
+
+  // 2. Filter & Search List
+  const filtered = todos.filter(todo => {
+    const matchesFilter = 
+      currentFilter === "all" ? true :
+      currentFilter === "active" ? !todo.completed :
+      currentFilter === "completed" ? todo.completed : true;
+
+    const matchesSearch = todo.text.toLowerCase().includes(currentSearch.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
+
+  // 3. Render Empty State
+  if (filtered.length === 0) {
+    const emptyTitle = currentSearch 
+      ? "Không tìm thấy công việc phù hợp" 
+      : currentFilter === "completed" 
+      ? "Chưa có công việc nào hoàn thành" 
+      : "Chưa có công việc nào!";
+      
+    list.innerHTML = `
+      <div class="empty-state">
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+        </svg>
+        <div class="empty-title">${emptyTitle}</div>
+        <div class="empty-desc">Hãy thêm công việc mới hoặc thay đổi bộ lọc bên trên.</div>
+      </div>
+    `;
+    return;
+  }
+
+  // 4. Render Todo Items
+  filtered.forEach(todo => {
+    const pInfo = PRIORITY_MAP[todo.priority] || PRIORITY_MAP["medium"];
+    const li = document.createElement("li");
+    li.className = `todo-item ${todo.completed ? "completed" : ""}`;
+    
+    li.innerHTML = `
+      <div class="todo-left">
+        <div class="checkbox-custom" onclick="toggleTodo(${todo.id})" title="Đánh dấu hoàn thành">
+          <svg viewBox="0 0 24 24" fill="none">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="todo-content">
+          <span class="todo-text">${escapeHtml(todo.text)}</span>
+          <div class="todo-meta">
+            <span class="badge-priority ${pInfo.class}">${pInfo.label}</span>
+            ${todo.createdAt ? `<span class="todo-time">• ${formatTime(todo.createdAt)}</span>` : ""}
+          </div>
+        </div>
+      </div>
+      <div class="todo-actions">
+        <button class="action-btn delete" onclick="deleteTodo(${todo.id})" title="Xóa công việc">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+      </div>
+    `;
+    list.appendChild(li);
+  });
+}
+
+// Utility HTML escape
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// --- LocalStorage Action Functions ---
+function addTodo() {
+  const input = document.getElementById("taskInput");
+  const text = input.value.trim();
+  if (text === "") {
+    showToast("Vui lòng nhập nội dung công việc!", "⚠️");
+    input.focus();
+    return;
+  }
+
+  const todo = {
+    id: nextId++,
+    text,
+    priority: selectedPriority,
+    completed: false,
+    createdAt: new Date().toISOString()
+  };
+
+  todos.push(todo);
+  saveTodos();
+  input.value = "";
+  showToast("Đã thêm công việc mới!", "🎉");
+  renderTodos();
+}
+
+function toggleTodo(id) {
+  const todo = todos.find(t => t.id === id);
+  if (todo) {
+    todo.completed = !todo.completed;
+    saveTodos();
+    renderTodos();
+  }
+}
+
+function deleteTodo(id) {
+  todos = todos.filter(t => t.id !== id);
+  saveTodos();
+  showToast("Đã xóa công việc", "🗑️");
+  renderTodos();
+}
+
+function clearCompleted() {
+  const hasCompleted = todos.some(t => t.completed);
+  if (!hasCompleted) {
+    showToast("Không có công việc hoàn thành để dọn dẹp", "ℹ️");
+    return;
+  }
+
+  todos = todos.filter(t => !t.completed);
+  saveTodos();
+  showToast("Đã dọn dẹp các công việc đã xong!", "✨");
+  renderTodos();
+}
+
+// --- Event Listeners ---
+document.addEventListener("DOMContentLoaded", () => {
+  const addBtn = document.getElementById("addBtn");
+  const taskInput = document.getElementById("taskInput");
+
+  if (addBtn) addBtn.addEventListener("click", addTodo);
+  if (taskInput) {
+    taskInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") addTodo();
+    });
+  }
+
+  // Priority Selector buttons
+  const priorityBtns = document.querySelectorAll(".priority-btn");
+  priorityBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      priorityBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      selectedPriority = btn.dataset.priority;
+    });
+  });
+
+  // Filter Tabs
+  const tabBtns = document.querySelectorAll(".tab-btn");
+  tabBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      tabBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentFilter = btn.dataset.filter;
+      renderTodos();
+    });
+  });
+
+  // Search Input
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      currentSearch = e.target.value;
+      renderTodos();
+    });
+  }
+
+  // Clear Completed Button
+  const clearBtn = document.getElementById("clearCompletedBtn");
+  if (clearBtn) clearBtn.addEventListener("click", clearCompleted);
+
+  // Initial Render
+  renderTodos();
+});
