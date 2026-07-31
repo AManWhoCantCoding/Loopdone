@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Loopdone — Quản lý công việc hiện đại</title>
-  <meta name="description" content="Loopdone - Ung dung quan ly cong viec full-stack hien dai va chuyen nghiep" />
+  <title>Loopdone — Modern Task Manager</title>
+  <meta name="description" content="Loopdone - Modern & professional full-stack task management application" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -19,18 +19,25 @@
           </div>
           <div>
             <h1 class="app-title">Loopdone</h1>
-            <p class="app-subtitle">Tối ưu hiệu suất công việc mỗi ngày</p>
+            <p id="appSubtitle" class="app-subtitle">Optimize your daily workflow</p>
           </div>
         </div>
-        <div id="modeBadge" class="mode-badge">
-          <span class="dot"></span>
-          <span id="modeText">REST API Mode</span>
+
+        <div class="header-badges">
+          <button type="button" id="langToggleBtn" class="lang-btn" title="Switch Language">
+            <span id="langFlag">🇺🇸</span>
+            <span id="langText">EN</span>
+          </button>
+          <div id="modeBadge" class="mode-badge">
+            <span class="dot"></span>
+            <span id="modeText">REST API Mode</span>
+          </div>
         </div>
       </div>
 
       <div class="progress-card">
         <div class="progress-header">
-          <span class="progress-title">Tiến độ hoàn thành</span>
+          <span id="progressTitle" class="progress-title">Completion Progress</span>
           <span id="progressStats" class="progress-stats">0/0 (0%)</span>
         </div>
         <div class="progress-bar-bg">
@@ -46,17 +53,17 @@
             type="text" 
             id="taskInput" 
             class="task-input" 
-            placeholder="Nhập công việc mới cần thực hiện..." 
+            placeholder="Enter new task to do..." 
             autocomplete="off" 
           />
         </div>
         <div class="form-actions">
           <div class="priority-selector">
-            <span class="priority-label">Độ ưu tiên:</span>
+            <span id="priorityLabel" class="priority-label">Priority:</span>
             <div class="priority-options">
-              <button type="button" class="priority-btn" data-priority="high">Cao</button>
-              <button type="button" class="priority-btn active" data-priority="medium">Trung bình</button>
-              <button type="button" class="priority-btn" data-priority="low">Thấp</button>
+              <button type="button" class="priority-btn" data-priority="high" id="pHigh">High</button>
+              <button type="button" class="priority-btn active" data-priority="medium" id="pMed">Medium</button>
+              <button type="button" class="priority-btn" data-priority="low" id="pLow">Low</button>
             </div>
           </div>
           <button type="button" id="addBtn" class="btn-add">
@@ -64,7 +71,7 @@
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Thêm task
+            <span id="addBtnText">Add Task</span>
           </button>
         </div>
       </div>
@@ -72,16 +79,16 @@
 
     <section class="controls-bar">
       <div class="filter-tabs">
-        <button class="tab-btn active" data-filter="all">Tất cả</button>
-        <button class="tab-btn" data-filter="active">Đang làm</button>
-        <button class="tab-btn" data-filter="completed">Đã xong</button>
+        <button class="tab-btn active" data-filter="all" id="tabAll">All</button>
+        <button class="tab-btn" data-filter="active" id="tabActive">Active</button>
+        <button class="tab-btn" data-filter="completed" id="tabCompleted">Completed</button>
       </div>
       <div class="search-box">
         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        <input type="text" id="searchInput" class="search-input" placeholder="Tìm kiếm công việc..." />
+        <input type="text" id="searchInput" class="search-input" placeholder="Search tasks..." />
       </div>
     </section>
 
@@ -90,8 +97,8 @@
     </main>
 
     <footer class="app-footer">
-      <span id="itemsLeftCount">0 công việc đang chờ</span>
-      <button id="clearCompletedBtn" class="btn-clear">Dọn dẹp công việc đã xong</button>
+      <span id="itemsLeftCount">0 tasks pending</span>
+      <button id="clearCompletedBtn" class="btn-clear">Clear completed tasks</button>
     </footer>
   </div>
 
