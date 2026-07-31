@@ -1,19 +1,16 @@
 const API_URL = "/api/todos";
 
-// State
 let todos = [];
 let currentFilter = "all";
 let currentSearch = "";
 let selectedPriority = "medium";
 
-// Priority Labels & Colors Mapping
 const PRIORITY_MAP = {
   high: { label: "Cao", class: "high" },
   medium: { label: "Trung bình", class: "medium" },
   low: { label: "Thấp", class: "low" }
 };
 
-// --- Toast Notification ---
 function showToast(message, icon = "✨") {
   const container = document.getElementById("toastContainer");
   if (!container) return;
@@ -29,7 +26,6 @@ function showToast(message, icon = "✨") {
   }, 2500);
 }
 
-// --- Format Relative Time ---
 function formatTime(isoString) {
   if (!isoString) return "";
   const date = new Date(isoString);
@@ -44,7 +40,6 @@ function formatTime(isoString) {
   return date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
 }
 
-// --- Fetch & Render ---
 async function fetchTodos() {
   try {
     const res = await fetch(API_URL);
@@ -52,7 +47,7 @@ async function fetchTodos() {
     todos = await res.json();
     renderTodos();
   } catch (err) {
-    console.warn("Không kết nối được REST API server. Kiểm tra lại server.js.", err);
+    console.warn("REST API connection error", err);
     document.getElementById("modeText").textContent = "REST API (Disconnect)";
     document.getElementById("modeBadge").style.borderColor = "rgba(244, 63, 94, 0.4)";
     showToast("Không kết nối được Backend Server!", "⚠️");
@@ -64,7 +59,6 @@ function renderTodos() {
   if (!list) return;
   list.innerHTML = "";
 
-  // 1. Calculate & Update Overall Statistics
   const totalCount = todos.length;
   const completedCount = todos.filter(t => t.completed).length;
   const activeCount = totalCount - completedCount;
@@ -78,7 +72,6 @@ function renderTodos() {
   if (progressBarFill) progressBarFill.style.width = `${percent}%`;
   if (itemsLeftCount) itemsLeftCount.textContent = `${activeCount} công việc đang chờ`;
 
-  // 2. Filter & Search List
   const filtered = todos.filter(todo => {
     const matchesFilter = 
       currentFilter === "all" ? true :
@@ -89,7 +82,6 @@ function renderTodos() {
     return matchesFilter && matchesSearch;
   });
 
-  // 3. Render Empty State if no items
   if (filtered.length === 0) {
     const emptyTitle = currentSearch 
       ? "Không tìm thấy công việc phù hợp" 
@@ -109,7 +101,6 @@ function renderTodos() {
     return;
   }
 
-  // 4. Render Todo Items
   filtered.forEach(todo => {
     const pInfo = PRIORITY_MAP[todo.priority] || PRIORITY_MAP["medium"];
     const li = document.createElement("li");
@@ -143,14 +134,12 @@ function renderTodos() {
   });
 }
 
-// Utility HTML escape
 function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
 }
 
-// --- API Action Functions ---
 async function addTodo() {
   const input = document.getElementById("taskInput");
   const text = input.value.trim();
@@ -214,9 +203,7 @@ async function clearCompleted() {
   }
 }
 
-// --- Event Listeners Setup ---
 document.addEventListener("DOMContentLoaded", () => {
-  // Add button & Enter key
   const addBtn = document.getElementById("addBtn");
   const taskInput = document.getElementById("taskInput");
 
@@ -227,7 +214,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Priority Selector buttons
   const priorityBtns = document.querySelectorAll(".priority-btn");
   priorityBtns.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -237,7 +223,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Filter Tabs
   const tabBtns = document.querySelectorAll(".tab-btn");
   tabBtns.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -248,7 +233,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Search Input
   const searchInput = document.getElementById("searchInput");
   if (searchInput) {
     searchInput.addEventListener("input", (e) => {
@@ -257,10 +241,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Clear Completed Button
   const clearBtn = document.getElementById("clearCompletedBtn");
   if (clearBtn) clearBtn.addEventListener("click", clearCompleted);
 
-  // Initial Fetch
   fetchTodos();
 });

@@ -9,7 +9,6 @@
 </head>
 <body>
   <div class="app-container">
-    <!-- Header -->
     <header class="app-header">
       <div class="brand">
         <div class="logo-group">
@@ -29,7 +28,6 @@
         </div>
       </div>
 
-      <!-- Progress Tracking Card -->
       <div class="progress-card">
         <div class="progress-header">
           <span class="progress-title">Tiến độ hoàn thành</span>
@@ -41,7 +39,6 @@
       </div>
     </header>
 
-    <!-- Task Input Form -->
     <section class="input-section">
       <div class="task-form">
         <div class="input-row">
@@ -73,7 +70,6 @@
       </div>
     </section>
 
-    <!-- Controls Bar (Filter Tabs & Search) -->
     <section class="controls-bar">
       <div class="filter-tabs">
         <button class="tab-btn active" data-filter="all">Tất cả</button>
@@ -89,22 +85,18 @@
       </div>
     </section>
 
-    <!-- Task List -->
     <main>
       <ul id="todoList" class="todo-list"></ul>
     </main>
 
-    <!-- Footer -->
     <footer class="app-footer">
       <span id="itemsLeftCount">0 công việc đang chờ</span>
       <button id="clearCompletedBtn" class="btn-clear">Dọn dẹp công việc đã xong</button>
     </footer>
   </div>
 
-  <!-- Toast Container -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <!-- JavaScript Entry Point -->
   <script src="app-api.js"></script>
 </body>
 </html>

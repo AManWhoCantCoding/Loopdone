@@ -1,6 +1,3 @@
-// Loopdone — LocalStorage Frontend Logic
-
-// Initial State from LocalStorage
 let todos = JSON.parse(localStorage.getItem("loopdone_todos")) || [
   { id: 1, text: "Hoàn thiện thiết kế giao diện Loopdone", priority: "high", completed: true, createdAt: new Date().toISOString() },
   { id: 2, text: "Trải nghiệm chế độ LocalStorage offline", priority: "medium", completed: false, createdAt: new Date().toISOString() },
@@ -12,19 +9,16 @@ let currentSearch = "";
 let selectedPriority = "medium";
 let nextId = todos.length > 0 ? Math.max(...todos.map(t => t.id || 0)) + 1 : 1;
 
-// Priority Labels & Colors Mapping
 const PRIORITY_MAP = {
   high: { label: "Cao", class: "high" },
   medium: { label: "Trung bình", class: "medium" },
   low: { label: "Thấp", class: "low" }
 };
 
-// Save to LocalStorage
 function saveTodos() {
   localStorage.setItem("loopdone_todos", JSON.stringify(todos));
 }
 
-// --- Toast Notification ---
 function showToast(message, icon = "✨") {
   const container = document.getElementById("toastContainer");
   if (!container) return;
@@ -40,7 +34,6 @@ function showToast(message, icon = "✨") {
   }, 2500);
 }
 
-// --- Format Relative Time ---
 function formatTime(isoString) {
   if (!isoString) return "";
   const date = new Date(isoString);
@@ -55,17 +48,14 @@ function formatTime(isoString) {
   return date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
 }
 
-// --- Render Function ---
 function renderTodos() {
   const list = document.getElementById("todoList");
   if (!list) return;
   list.innerHTML = "";
 
-  // Update mode badge for LocalStorage
   const modeText = document.getElementById("modeText");
   if (modeText) modeText.textContent = "LocalStorage Mode";
 
-  // 1. Calculate Statistics
   const totalCount = todos.length;
   const completedCount = todos.filter(t => t.completed).length;
   const activeCount = totalCount - completedCount;
@@ -79,7 +69,6 @@ function renderTodos() {
   if (progressBarFill) progressBarFill.style.width = `${percent}%`;
   if (itemsLeftCount) itemsLeftCount.textContent = `${activeCount} công việc đang chờ`;
 
-  // 2. Filter & Search List
   const filtered = todos.filter(todo => {
     const matchesFilter = 
       currentFilter === "all" ? true :
@@ -90,7 +79,6 @@ function renderTodos() {
     return matchesFilter && matchesSearch;
   });
 
-  // 3. Render Empty State
   if (filtered.length === 0) {
     const emptyTitle = currentSearch 
       ? "Không tìm thấy công việc phù hợp" 
@@ -110,7 +98,6 @@ function renderTodos() {
     return;
   }
 
-  // 4. Render Todo Items
   filtered.forEach(todo => {
     const pInfo = PRIORITY_MAP[todo.priority] || PRIORITY_MAP["medium"];
     const li = document.createElement("li");
@@ -144,14 +131,12 @@ function renderTodos() {
   });
 }
 
-// Utility HTML escape
 function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
 }
 
-// --- LocalStorage Action Functions ---
 function addTodo() {
   const input = document.getElementById("taskInput");
   const text = input.value.trim();
@@ -205,7 +190,6 @@ function clearCompleted() {
   renderTodos();
 }
 
-// --- Event Listeners ---
 document.addEventListener("DOMContentLoaded", () => {
   const addBtn = document.getElementById("addBtn");
   const taskInput = document.getElementById("taskInput");
@@ -217,7 +201,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Priority Selector buttons
   const priorityBtns = document.querySelectorAll(".priority-btn");
   priorityBtns.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -227,7 +210,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Filter Tabs
   const tabBtns = document.querySelectorAll(".tab-btn");
   tabBtns.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -238,7 +220,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Search Input
   const searchInput = document.getElementById("searchInput");
   if (searchInput) {
     searchInput.addEventListener("input", (e) => {
@@ -247,10 +228,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Clear Completed Button
   const clearBtn = document.getElementById("clearCompletedBtn");
   if (clearBtn) clearBtn.addEventListener("click", clearCompleted);
 
-  // Initial Render
   renderTodos();
 });
